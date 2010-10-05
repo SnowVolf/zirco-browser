@@ -112,7 +112,6 @@ public class BookmarksListActivity extends ListActivity {
     @Override
 	protected void onDestroy() {
 		mDbAdapter.close();
-		mCursor.close();
 		super.onDestroy();
 	}
 
@@ -183,8 +182,6 @@ public class BookmarksListActivity extends ListActivity {
         } else {
         	setResult(RESULT_OK, result);
         }
-        
-        mDbAdapter.updateBookmarkCount(id);
         
         finish();
     }
@@ -271,8 +268,6 @@ public class BookmarksListActivity extends ListActivity {
             	setResult(RESULT_OK, i);            
             }
             
-            mDbAdapter.updateBookmarkCount(info.id);
-            
             finish();
             return true;
             
@@ -317,9 +312,8 @@ public class BookmarksListActivity extends ListActivity {
     	builder.setInverseBackgroundForced(true);
     	builder.setIcon(android.R.drawable.ic_dialog_info);
     	builder.setTitle(getResources().getString(R.string.BookmarksListActivity_MenuSortMode));
-    	builder.setSingleChoiceItems(new String[] {getResources().getString(R.string.BookmarksListActivity_MostUsedSortMode),
-    			getResources().getString(R.string.BookmarksListActivity_AlphaSortMode),
-    			getResources().getString(R.string.BookmarksListActivity_RecentSortMode) },
+    	builder.setSingleChoiceItems(new String[] {getResources().getString(R.string.BookmarksListActivity_AlphaSortMode),
+    													getResources().getString(R.string.BookmarksListActivity_RecentSortMode) },
     			currentSort,
     			new OnClickListener() {
 			@Override

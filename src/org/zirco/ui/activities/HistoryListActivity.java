@@ -55,8 +55,7 @@ public class HistoryListActivity extends ExpandableListActivity {
 	private static final int MENU_CLEAR_HISTORY = Menu.FIRST;
 	
 	private static final int MENU_OPEN_IN_TAB = Menu.FIRST + 10;
-	private static final int MENU_COPY_URL = Menu.FIRST + 11;
-	private static final int MENU_DELETE_FROM_HISTORY = Menu.FIRST + 12;
+	private static final int MENU_DELETE_FROM_HISTORY = Menu.FIRST + 11;
 	
 	private DbAdapter mDbAdapter;	
 	private ExpandableListAdapter mAdapter;
@@ -111,7 +110,6 @@ public class HistoryListActivity extends ExpandableListActivity {
 		if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
 			menu.setHeaderTitle(mData.get(group).get(child).getTitle());
 			menu.add(0, MENU_OPEN_IN_TAB, 0, R.string.HistoryListActivity_MenuOpenInTab);
-			menu.add(0, MENU_COPY_URL, 0, R.string.BookmarksHistoryActivity_MenuCopyLinkUrl);
 			menu.add(0, MENU_DELETE_FROM_HISTORY, 0, R.string.HistoryListActivity_MenuDelete);
 		}
 	}
@@ -129,9 +127,6 @@ public class HistoryListActivity extends ExpandableListActivity {
 			switch (menuItem.getItemId()) {
 			case MENU_OPEN_IN_TAB:
 				doNavigateToUrl(mData.get(group).get(child).getUrl(), true);
-				break;
-			case MENU_COPY_URL:
-				ApplicationUtils.copyTextToClipboard(this, mData.get(group).get(child).getUrl(), getString(R.string.Commons_UrlCopyToastMessage));
 				break;
 			case MENU_DELETE_FROM_HISTORY:
 				mDbAdapter.deleteFromHistory(mData.get(group).get(child).getId());
@@ -151,7 +146,7 @@ public class HistoryListActivity extends ExpandableListActivity {
     	
     	MenuItem item;
     	item = menu.add(0, MENU_CLEAR_HISTORY, 0, R.string.Commons_ClearHistory);
-        item.setIcon(R.drawable.ic_menu_delete);
+        item.setIcon(R.drawable.clear32);
         
         return true;
 	}
@@ -185,11 +180,7 @@ public class HistoryListActivity extends ExpandableListActivity {
         result.putExtra(Constants.EXTRA_ID_NEW_TAB, newTab);
         result.putExtra(Constants.EXTRA_ID_URL,  url);
         
-        if (getParent() != null) {
-        	getParent().setResult(RESULT_OK, result);
-        } else {
-        	setResult(RESULT_OK, result);
-        }
+        setResult(RESULT_OK, result);
         finish();
 	}
 
@@ -259,14 +250,14 @@ public class HistoryListActivity extends ExpandableListActivity {
 		private TextView getGenericView() {
             // Layout parameters for the ExpandableListView
             AbsListView.LayoutParams lp = new AbsListView.LayoutParams(
-                    ViewGroup.LayoutParams.FILL_PARENT, (int) (45 * getResources().getDisplayMetrics().density));
+                    ViewGroup.LayoutParams.FILL_PARENT, 48);
 
             TextView textView = new TextView(HistoryListActivity.this);
             textView.setLayoutParams(lp);
             // Center the text vertically
             textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
             // Set the text starting position
-            textView.setPadding((int) (35 * getResources().getDisplayMetrics().density), 0, 0, 0);
+            textView.setPadding(36, 0, 0, 0);
             return textView;
         }
 		
@@ -302,7 +293,7 @@ public class HistoryListActivity extends ExpandableListActivity {
 			
 			String url = ((HistoryItem) getChild(groupPosition, childPosition)).getUrl(); 
 			
-			url = ApplicationUtils.getTruncatedString(urlView.getPaint(), url, (int) (parent.getMeasuredWidth() - (60 * getResources().getDisplayMetrics().density)));
+			url = ApplicationUtils.getTruncatedString(urlView.getPaint(), url, parent.getMeasuredWidth() - 60);
 			
 			urlView.setText(url);
             

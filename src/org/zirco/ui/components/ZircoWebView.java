@@ -16,29 +16,22 @@
 package org.zirco.ui.components;
 
 import org.zirco.controllers.Controller;
-import org.zirco.utils.ApplicationUtils;
 import org.zirco.utils.Constants;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebSettings.ZoomDensity;
 
 /**
  * A convenient extension of WebView.
  */
 public class ZircoWebView extends WebView {
 	
-	private Context mContext;
-	
 	private int mProgress = 100;
 	
 	private boolean mIsLoading = false;
-	
-	private String mLoadedUrl;
 	
 	/**
 	 * Constructor.
@@ -46,8 +39,6 @@ public class ZircoWebView extends WebView {
 	 */
 	public ZircoWebView(Context context) {
 		super(context);
-		
-		mContext = context;
 		
 		initializeOptions();
 	}
@@ -59,8 +50,6 @@ public class ZircoWebView extends WebView {
 	 */
 	public ZircoWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        
-        mContext = context;
         
         initializeOptions();
 	}	
@@ -76,8 +65,6 @@ public class ZircoWebView extends WebView {
 		settings.setLoadsImagesAutomatically(Controller.getInstance().getPreferences().getBoolean(Constants.PREFERENCES_BROWSER_ENABLE_IMAGES, true));
 		settings.setSaveFormData(Controller.getInstance().getPreferences().getBoolean(Constants.PREFERENCES_BROWSER_ENABLE_FORM_DATA, true));
 		settings.setSavePassword(Controller.getInstance().getPreferences().getBoolean(Constants.PREFERENCES_BROWSER_ENABLE_PASSWORDS, true));
-		settings.setDefaultZoom(ZoomDensity.valueOf(Controller.getInstance().getPreferences().getString(Constants.PREFERENCES_DEFAULT_ZOOM_LEVEL, ZoomDensity.MEDIUM.toString())));		
-		settings.setUserAgentString(Controller.getInstance().getPreferences().getString(Constants.PREFERENCES_BROWSER_USER_AGENT, Constants.USER_AGENT_DEFAULT));
 		
 		CookieManager.getInstance().setAcceptCookie(Controller.getInstance().getPreferences().getBoolean(Constants.PREFERENCES_BROWSER_ENABLE_COOKIES, true));
 		
@@ -86,21 +73,6 @@ public class ZircoWebView extends WebView {
 		// Technical settings
 		settings.setSupportMultipleWindows(true);						
     	setLongClickable(true);
-    	setScrollbarFadingEnabled(true);
-    	setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
-	}
-	
-	@Override
-	public void loadUrl(String url) {
-		mLoadedUrl = url;
-		super.loadUrl(url);
-	}
-
-	/**
-	 * Inject the AdSweep javascript.
-	 */
-	public void loadAdSweep() {
-		super.loadUrl(ApplicationUtils.getAdSweepString(mContext));
 	}
 	
 	/**
@@ -140,21 +112,6 @@ public class ZircoWebView extends WebView {
 	 */
 	public boolean isLoading() {
 		return mIsLoading;
-	}
-	
-	/**
-	 * Get the loaded url, e.g. the one asked by the user, without redirections.
-	 * @return The loaded url.
-	 */
-	public String getLoadedUrl() {
-		return mLoadedUrl;
-	}
-	
-	/**
-	 * Reset the loaded url.
-	 */
-	public void resetLoadedUrl() {
-		mLoadedUrl = null;
 	}
 
 }

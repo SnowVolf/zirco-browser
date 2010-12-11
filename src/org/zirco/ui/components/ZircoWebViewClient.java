@@ -15,16 +15,12 @@
 
 package org.zirco.ui.components;
 
-import org.zirco.controllers.Controller;
 import org.zirco.events.EventConstants;
 import org.zirco.events.EventController;
-import org.zirco.utils.ApplicationUtils;
-import org.zirco.utils.Constants;
 
 import android.graphics.Bitmap;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.webkit.WebView.HitTestResult;
 
 /**
  * Convenient extension of WebViewClient.
@@ -44,14 +40,6 @@ public class ZircoWebViewClient extends WebViewClient {
 	@Override
 	public void onPageStarted(WebView view, String url, Bitmap favicon) {
 		
-		// Some magic here: when performing WebView.loadDataWithBaseURL, the url is "file:///android_asset/startpage,
-		// whereas when the doing a "previous" or "next", the url is "about:start", and we need to perform the
-		// loadDataWithBaseURL here, otherwise it won't load.
-		if (url.equals(Constants.URL_ABOUT_START)) {
-			view.loadDataWithBaseURL("file:///android_asset/startpage/",
-					ApplicationUtils.getStartPage(view.getContext()), "text/html", "UTF-8", "about:start");
-		}
-		
 		((ZircoWebView) view).notifyPageStarted();
 		
 		EventController.getInstance().fireWebEvent(EventConstants.EVT_WEB_ON_PAGE_STARTED, url);
@@ -67,22 +55,8 @@ public class ZircoWebViewClient extends WebViewClient {
 			EventController.getInstance().fireWebEvent(EventConstants.EVT_VND_URL, url);						
 			return true;
 			
-		} else if (url.startsWith(Constants.URL_ACTION_SEARCH)) {
-			String searchTerm = url.replace(Constants.URL_ACTION_SEARCH, "");
-			
-			String searchUrl = Controller.getInstance().getPreferences().getString(Constants.PREFERENCES_GENERAL_SEARCH_URL, Constants.URL_SEARCH_GOOGLE);
-			String newUrl = String.format(searchUrl, searchTerm);
-			
-			view.loadUrl(newUrl);
-			return true;
-			
-		} else if (view.getHitTestResult().getType() == HitTestResult.EMAIL_TYPE) {
-			
-			EventController.getInstance().fireWebEvent(EventConstants.EVT_MAILTO_URL, url);
-			return true;
-			
 		} else {
-			((ZircoWebView) view).resetLoadedUrl();
+		
 			EventController.getInstance().fireWebEvent(EventConstants.EVT_WEB_ON_URL_LOADING, url);				
 			return false;
 		}

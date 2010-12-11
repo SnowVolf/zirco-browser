@@ -17,95 +17,38 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory android:title="@string/PreferencesActivity.GeneralSettingsCategoryTitle">
-		<Preference
-			android:title="@string/PreferencesActivity.HomePagePreferenceTitle"
+		<EditTextPreference
+			android:name="@string/PreferencesActivity.HomePagePreferenceTitle"
 			android:summary="@string/PreferencesActivity.HomePagePreferenceSummary"
-			android:key="GeneralHomePage" />		
-		<Preference
-			android:title="@string/PreferencesActivity.SearchUrlPreferenceTitle"
-			android:summary="@string/PreferencesActivity.SearchUrlPreferenceSummary"
-			android:key="GeneralSearchUrl" />
-		<PreferenceScreen
-			android:key="UIPreferencesScreen"
-			android:title="@string/PreferencesActivity.UIPreferenceTitle"
-			android:summary="@string/PreferencesActivity.UIPreferenceSummary">
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.FullScreenPreferenceTitle"
-				android:defaultValue="true"
-				android:summary="@string/PreferencesActivity.FullScreenPreferenceSummary"
-				android:key="GeneralFullScreen" />
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.ShowHomeButtonPreferenceTitle"
-				android:defaultValue="true"
-				android:summary="@string/PreferencesActivity.ShowHomeButtonPreferenceSummary"
-				android:key="UIShowHomeButton" />
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.ShowToastOnTabSwitchPreferenceTitle"
-				android:defaultValue="true"
-				android:summary="@string/PreferencesActivity.ShowToastOnTabSwitchPreferenceSummary"
-				android:key="GeneralShowToastOnTabSwitch" />
-			<ListPreference
-				android:title="@string/PreferencesActivity.BarDurationPreferenceTitle"
-				android:summary="@string/PreferencesActivity.BarDurationPreferenceSummary"
-				android:key="GeneralBarsDuration"
-				android:defaultValue="3000"
-				android:entries="@array/BarDurationEntries"
-				android:entryValues="@array/BarDurationValues" />
-			<ListPreference
-				android:title="@string/PreferencesActivity.BubblePositionPreferenceTitle"
-				android:summary="@string/PreferencesActivity.BubblePositionPreferenceSummary"
-				android:key="GeneralBubblePosition"
-				android:defaultValue="right"
-				android:entries="@array/BubblePositionEntries"
-				android:entryValues="@array/BubblePositionValues" />			
-		</PreferenceScreen>
-		<PreferenceScreen
-			android:key="StartPageCustomizationPreferencesScreen"
-			android:title="@string/PreferencesActivity.StartPageCustomizationPreferenceTitle"
-			android:summary="@string/PreferencesActivity.StartPageCustomizationPreferenceSummary">
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.StartPageEnableSearchPreferenceTitle"
-				android:defaultValue="true"
-				android:summary="@string/PreferencesActivity.StartPageEnableSearchPreferenceSummary"
-				android:key="StartPageEnableSearch" />
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.StartPageEnableBookmarksPreferenceTitle"
-				android:defaultValue="true"
-				android:summary="@string/PreferencesActivity.StartPageEnableBookmarksPreferenceSummary"
-				android:key="StartPageEnableBookmarks" />
-			<EditTextPreference
-				android:name="@string/PreferencesActivity.StartPageBookmarksLimitPreferenceTitle"
-				android:summary="@string/PreferencesActivity.StartPageBookmarksLimitPreferenceSummary"
-				android:defaultValue="5"
-				android:numeric="integer"
-				android:title="@string/PreferencesActivity.StartPageBookmarksLimitPreferenceTitle"
-				android:key="StartPageBookmarksLimit" />
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.StartPageEnableHistoryPreferenceTitle"
-				android:defaultValue="true"
-				android:summary="@string/PreferencesActivity.StartPageEnableHistoryPreferenceSummary"
-				android:key="StartPageEnableHistory" />
-			<EditTextPreference
-				android:name="@string/PreferencesActivity.StartPageHistoryLimitPreferenceTitle"
-				android:summary="@string/PreferencesActivity.StartPageHistoryLimitPreferenceSummary"
-				android:defaultValue="5"
-				android:numeric="integer"
-				android:title="@string/PreferencesActivity.StartPageHistoryLimitPreferenceTitle"
-				android:key="StartPageHistoryLimit" />
-		</PreferenceScreen>
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/PreferencesActivity.BrowserSettingsCategoryTitle">
+			android:defaultValue="@string/PreferencesActivity.HomePagePreferenceDefaultValue"
+			android:title="@string/PreferencesActivity.HomePagePreferenceTitle"
+			android:key="GeneralHomePage" />
 		<ListPreference
-			android:title="@string/PreferencesActivity.DefaultZoomPreferenceTitle"
-			android:summary="@string/PreferencesActivity.DefaultZoomPreferenceSummary"
-			android:key="DefaultZoomLevel"
-			android:defaultValue="MEDIUM"
-			android:entries="@array/DefaultZoomEntries"
-			android:entryValues="@array/DefaultZoomValues" />
-		<Preference
-			android:title="@string/PreferencesActivity.UserAgentPreferenceTitle"
-			android:summary="@string/PreferencesActivity.UserAgentPreferenceSummary"
-			android:key="BrowserUserAgent" />	
+			android:title="@string/PreferencesActivity.QuickButtonPreferenceTitle"
+			android:summary="@string/PreferencesActivity.QuickButtonPreferenceSummary"
+			android:key="GeneralQuickButton"
+			android:defaultValue="bookmarks"
+			android:entries="@array/QuickButtonEntries"
+			android:entryValues="@array/QuickButtonValues" />
+		<ListPreference
+			android:title="@string/PreferencesActivity.BarDurationPreferenceTitle"
+			android:summary="@string/PreferencesActivity.BarDurationPreferenceSummary"
+			android:key="GeneralBarsDuration"
+			android:defaultValue="3000"
+			android:entries="@array/BarDurationEntries"
+			android:entryValues="@array/BarDurationValues" />
+		<CheckBoxPreference
+			android:title="@string/PreferencesActivity.FullScreenPreferenceTitle"
+			android:defaultValue="true"
+			android:summary="@string/PreferencesActivity.FullScreenPreferenceSummary"
+			android:key="GeneralFullScreen" />
+		<CheckBoxPreference
+			android:title="@string/PreferencesActivity.ShowToastOnTabSwitchPreferenceTitle"
+			android:defaultValue="true"
+			android:summary="@string/PreferencesActivity.ShowToastOnTabSwitchPreferenceSummary"
+			android:key="GeneralShowToastOnTabSwitch" />
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/PreferencesActivity.BrowserSettingsCategoryTitle">	
 		<CheckBoxPreference
 			android:title="@string/PreferencesActivity.EnableJavascriptPreferenceTitle"
 			android:defaultValue="true"
@@ -141,11 +84,6 @@
 				android:defaultValue="true"
 				android:summary="@string/PreferencesActivity.EnableCookiesPreferenceSummary"
 				android:key="BrowserEnableCookies" />
-			<CheckBoxPreference
-				android:title="@string/PreferencesActivity.ClearCacheOnExitPreferenceTitle"
-				android:defaultValue="false"
-				android:summary="@string/PreferencesActivity.ClearCacheOnExitPreferenceSummary"
-				android:key="PrivacyClearCacheOnExit" />
 			<Preference
 				android:title="@string/PreferencesActivity.PrivacyClearHistoryTitle"
 				android:key="PrivacyClearHistory" />
@@ -170,15 +108,5 @@
 			android:title="@string/PreferencesActivity.AdBlockerWhiteListPreferenceTitle"
 			android:summary="@string/PreferencesActivity.AdBlockerWhiteListPreferenceSummary"
 			android:key="AdBlockerWhiteList" />
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/PreferencesActivity.AboutCategoryTitle">
-		<Preference
-			android:title="@string/PreferencesActivity.AboutPreferenceTitle"
-			android:summary="@string/PreferencesActivity.AboutPreferenceSummary"
-			android:key="About" />
-		<Preference
-			android:title="@string/PreferencesActivity.ChangelogPreferenceTitle"
-			android:summary="@string/PreferencesActivity.ChangelogPreferenceSummary"
-			android:key="Changelog" />
 	</PreferenceCategory>
 </PreferenceScreen>

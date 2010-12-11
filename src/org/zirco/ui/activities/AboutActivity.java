@@ -33,7 +33,7 @@ import android.widget.TextView;
  */
 public class AboutActivity extends Activity {
 	
-	 @Override
+	@Override
 	 protected void onCreate(Bundle savedInstanceState) {
 		 super.onCreate(savedInstanceState);
 		 
@@ -74,7 +74,7 @@ public class AboutActivity extends Activity {
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
 
-			result = String.format("%s (%s)", info.versionName, info.versionCode);
+			result = info.versionName;
 
 		} catch (NameNotFoundException e) {
 			Log.w(AboutActivity.class.toString(), "Unable to get application version: " + e.getMessage());

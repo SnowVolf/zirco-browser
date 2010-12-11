@@ -15,31 +15,20 @@
 
 package org.zirco.model;
 
-import java.util.Random;
-
-import org.zirco.R;
 import org.zirco.events.EventConstants;
 import org.zirco.events.EventController;
-import org.zirco.ui.activities.DownloadsListActivity;
 import org.zirco.ui.runnables.DownloadRunnable;
-
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
 
 /**
  * Represent a download item.
  */
 public class DownloadItem {
 	
-	private Context mContext;
-	
 	private String mUrl;
 	private String mFileName;
 	
 	private int mProgress;
+	private int mTotal;
 	
 	private String mErrorMessage;
 	
@@ -48,34 +37,22 @@ public class DownloadItem {
 	private boolean mIsFinished;
 	private boolean mIsAborted;
 	
-	private NotificationManager mNotificationManager;
-	private Notification mNotification;
-	private int mNotificationId;
-	
 	/**
 	 * Constructor.
-	 * @param context The current context.
 	 * @param url The download url.
 	 */
-	public DownloadItem(Context context, String url) {
-		
-		mContext = context;
-		
+	public DownloadItem(String url) {
 		mUrl = url;
 		mFileName = mUrl.substring(mUrl.lastIndexOf("/") + 1);
 		
 		mProgress = 0;
+		mTotal = 0;
 	
 		mRunnable = null;
 		mErrorMessage = null;
 		
 		mIsFinished = false;
 		mIsAborted = false;
-		
-		Random r = new Random();
-		mNotificationId = r.nextInt();
-		mNotification = null;
-		mNotificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
 	}
 	
 	/**
@@ -103,6 +80,14 @@ public class DownloadItem {
 	}
 	
 	/**
+	 * Gets the total size.
+	 * @return The total siez.
+	 */
+	public int getTotalSize() {
+		return mTotal;
+	}
+	
+	/**
 	 * Set the current error message for this download.
 	 * @param errorMessage The error message.
 	 */
@@ -121,22 +106,27 @@ public class DownloadItem {
 	/**
 	 * Trigger a start download event.
 	 */
-	public void onStart() {
-		createNotification();
-		
+	public void onStart() {				
 		EventController.getInstance().fireDownloadEvent(EventConstants.EVT_DOWNLOAD_ON_START, this);
+	}
+	
+	/**
+	 * Initialize progress and total size.
+	 * @param size The total size.
+	 */
+	public void onSetSize(int size) {
+		mProgress = 0;
+		mTotal = size;
 	}
 	
 	/**
 	 * Set this item is download finished state. Trigger a finished download event.
 	 */
 	public void onFinished() {
-		mProgress = 100;
+		mProgress = mTotal;
 		mRunnable = null;
 		
 		mIsFinished = true;
-		
-		updateNotificationOnEnd();
 		
 		EventController.getInstance().fireDownloadEvent(EventConstants.EVT_DOWNLOAD_ON_FINISHED, this);
 	}
@@ -186,45 +176,6 @@ public class DownloadItem {
 	 */
 	public boolean isAborted() {
 		return mIsAborted;
-	}
-	
-	/**
-	 * Create the download notification.
-	 */
-	private void createNotification() {
-		mNotification = new Notification(R.drawable.download_anim, mContext.getString(R.string.DownloadNotification_DownloadStart), System.currentTimeMillis());		
-
-		Intent notificationIntent = new Intent(mContext.getApplicationContext(), DownloadsListActivity.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(mContext.getApplicationContext(), 0, notificationIntent, 0);
-
-		mNotification.setLatestEventInfo(mContext.getApplicationContext(), mContext.getString(R.string.DownloadNotification_DownloadInProgress), mFileName, contentIntent);
-
-		mNotificationManager.notify(mNotificationId, mNotification);
-	}
-	
-	/**
-	 * Update the download notification at the end of download.
-	 */
-	private void updateNotificationOnEnd() {
-		if (mNotification != null) {
-			mNotificationManager.cancel(mNotificationId);			
-		}
-		
-		String message;
-		if (mIsAborted) {
-			message = mContext.getString(R.string.DownloadNotification_DownloadCanceled);
-		} else {
-			message = mContext.getString(R.string.DownloadNotification_DownloadComplete);
-		}
-
-		mNotification = new Notification(R.drawable.stat_sys_download, mContext.getString(R.string.DownloadNotification_DownloadComplete), System.currentTimeMillis());
-
-		Intent notificationIntent = new Intent(mContext.getApplicationContext(), DownloadsListActivity.class);
-		PendingIntent contentIntent = PendingIntent.getActivity(mContext.getApplicationContext(), 0, notificationIntent, 0);
-
-		mNotification.setLatestEventInfo(mContext.getApplicationContext(), mFileName, message, contentIntent);
-
-		mNotificationManager.notify(mNotificationId, mNotification);		
 	}
 
 }

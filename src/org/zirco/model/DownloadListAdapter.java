@@ -110,7 +110,7 @@ public class DownloadListAdapter extends BaseAdapter {
 		final ImageButton stopButton = (ImageButton) convertView.findViewById(R.id.DownloadRow_StopBtn);
 		
 		progressBar.setIndeterminate(false);
-		progressBar.setMax(100);
+		progressBar.setMax(item.getTotalSize());
 		progressBar.setProgress(item.getProgress());		
 		
 		if (item.isAborted()) {

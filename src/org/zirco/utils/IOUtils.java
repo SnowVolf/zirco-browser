@@ -16,9 +16,6 @@
 package org.zirco.utils;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.os.Environment;
 
@@ -29,7 +26,6 @@ public class IOUtils {
 	
 	private static final String APPLICATION_FOLDER = "zirco";
 	private static final String DOWNLOAD_FOLDER = "downloads";
-	private static final String BOOKMARKS_EXPORT_FOLDER = "bookmarks-exports";
 	
 	/**
 	 * Get the application folder on the SD Card. Create it if not present.
@@ -72,62 +68,6 @@ public class IOUtils {
 		} else {
 			return null;
 		}
-	}
-	
-	/**
-	 * Get the application folder for bookmarks export. Create it if not present.
-	 * @return The application folder for bookmarks export.
-	 */
-	public static File getBookmarksExportFolder() {
-		File root = getApplicationFolder();
-		
-		if (root != null) {
-			
-			File folder = new File(root, BOOKMARKS_EXPORT_FOLDER);
-			
-			if (!folder.exists()) {
-				folder.mkdir();
-			}
-			
-			return folder;
-			
-		} else {
-			return null;
-		}
-	}
-	
-	/**
-	 * Get the list of xml files in the bookmark export folder.
-	 * @return The list of xml files in the bookmark export folder.
-	 */
-	public static List<String> getExportedBookmarksFileList() {
-		List<String> result = new ArrayList<String>();
-		
-		File folder = getBookmarksExportFolder();		
-		
-		if (folder != null) {
-			
-			FileFilter filter = new FileFilter() {
-				
-				@Override
-				public boolean accept(File pathname) {
-					if ((pathname.isFile()) &&
-							(pathname.getPath().endsWith(".xml"))) {
-						return true;
-					}
-					return false;
-				}
-			};
-			
-			File[] files = folder.listFiles(filter);
-			
-			for (File file : files) {
-				result.add(file.getName());
-			}
-			
-		}
-		
-		return result;
 	}
 
 }

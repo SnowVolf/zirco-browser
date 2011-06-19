@@ -39,6 +39,9 @@ import org.zirco.utils.ApplicationUtils;
 import org.zirco.utils.Constants;
 import org.zirco.utils.UrlUtils;
 
+import external.greendroid.QuickAction;
+import external.greendroid.QuickActionGrid;
+
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
@@ -161,6 +164,8 @@ public class ZircoMain extends Activity implements IWebEventListener, IToolbarsC
 	private GestureDetector mGestureDetector;
 	
 	private SwitchTabsMethod mSwitchTabsMethod = SwitchTabsMethod.BOTH;
+	
+	private QuickActionGrid mQuickActionGrid;
 	
 	private enum SwitchTabsMethod {
 		BUTTONS,
@@ -292,6 +297,10 @@ public class ZircoMain extends Activity implements IWebEventListener, IToolbarsC
      */
 	private void buildComponents() {
 		
+		mQuickActionGrid = new QuickActionGrid(this);
+		mQuickActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_stop, R.string.ApplicationName));
+		mQuickActionGrid.addQuickAction(new QuickAction(this, R.drawable.ic_btn_close_tab, R.string.ApplicationName));
+		
 		mGestureDetector = new GestureDetector(this, new GestureListener());
     	
     	mUrlBarVisible = true;
@@ -386,7 +395,8 @@ public class ZircoMain extends Activity implements IWebEventListener, IToolbarsC
 			
 			@Override
 			public void onClick(View v) {
-				navigateToHome();				
+				//navigateToHome();
+				mQuickActionGrid.show(v);
 			}
 		});
     	

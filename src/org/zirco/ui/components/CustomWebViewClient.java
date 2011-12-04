@@ -150,7 +150,7 @@ public class CustomWebViewClient extends WebViewClient {
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {				
-		
+		Log.d("shouldOverrideUrlLoading", url);
 		if (isExternalApplicationUrl(url)) {
 			mMainActivity.onExternalApplicationUrl(url);
 			return true;

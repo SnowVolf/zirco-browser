@@ -33,11 +33,10 @@ import org.zirco.model.items.DownloadItem;
 import org.zirco.providers.BookmarksProviderWrapper;
 import org.zirco.providers.BookmarksProviderWrapper.BookmarksSource;
 import org.zirco.ui.activities.preferences.PreferencesActivity;
+import org.zirco.ui.components.CustomPagerAdapter;
+import org.zirco.ui.components.CustomViewPager;
 import org.zirco.ui.components.CustomWebView;
-import org.zirco.ui.components.CustomWebViewClient;
-import org.zirco.ui.runnables.FaviconUpdaterRunnable;
 import org.zirco.ui.runnables.HideToolbarsRunnable;
-import org.zirco.ui.runnables.HistoryUpdater;
 import org.zirco.utils.AnimationManager;
 import org.zirco.utils.ApplicationUtils;
 import org.zirco.utils.Constants;
@@ -66,9 +65,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -78,18 +77,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.View.OnTouchListener;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.DownloadListener;
-import android.webkit.JsPromptResult;
-import android.webkit.JsResult;
 import android.webkit.ValueCallback;
-import android.webkit.WebChromeClient;
 import android.webkit.WebIconDatabase;
-import android.webkit.WebView;
-import android.webkit.WebView.HitTestResult;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
@@ -98,10 +90,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ViewFlipper;
 import android.widget.SimpleCursorAdapter.CursorToStringConverter;
 
 /**
@@ -111,25 +100,22 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	
 	public static MainActivity INSTANCE = null;
 	
-	private static final int FLIP_PIXEL_THRESHOLD = 200;
-	private static final int FLIP_TIME_THRESHOLD = 400;
-	
 	private static final int MENU_ADD_BOOKMARK = Menu.FIRST;
 	private static final int MENU_SHOW_BOOKMARKS = Menu.FIRST + 1;
 	private static final int MENU_SHOW_DOWNLOADS = Menu.FIRST + 2;	
 	private static final int MENU_PREFERENCES = Menu.FIRST + 3;
 	private static final int MENU_EXIT = Menu.FIRST + 4;	
 	
-	private static final int CONTEXT_MENU_OPEN = Menu.FIRST + 10;
-	private static final int CONTEXT_MENU_OPEN_IN_NEW_TAB = Menu.FIRST + 11;
-	private static final int CONTEXT_MENU_DOWNLOAD = Menu.FIRST + 12;
-	private static final int CONTEXT_MENU_COPY = Menu.FIRST + 13;
-	private static final int CONTEXT_MENU_SEND_MAIL = Menu.FIRST + 14;
-	private static final int CONTEXT_MENU_SHARE = Menu.FIRST + 15;
+	public static final int CONTEXT_MENU_OPEN = Menu.FIRST + 10;
+	public static final int CONTEXT_MENU_OPEN_IN_NEW_TAB = Menu.FIRST + 11;
+	public static final int CONTEXT_MENU_DOWNLOAD = Menu.FIRST + 12;
+	public static final int CONTEXT_MENU_COPY = Menu.FIRST + 13;
+	public static final int CONTEXT_MENU_SEND_MAIL = Menu.FIRST + 14;
+	public static final int CONTEXT_MENU_SHARE = Menu.FIRST + 15;
 	
 	private static final int OPEN_BOOKMARKS_HISTORY_ACTIVITY = 0;
 	private static final int OPEN_DOWNLOADS_ACTIVITY = 1;
-	private static final int OPEN_FILE_CHOOSER_ACTIVITY = 2;
+	public static final int OPEN_FILE_CHOOSER_ACTIVITY = 2;
 	
 	protected LayoutInflater mInflater = null;
 	
@@ -176,7 +162,12 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	
 	private HideToolbarsRunnable mHideToolbarsRunnable;
 	
-	private ViewFlipper mViewFlipper;
+	//private ViewFlipper mViewFlipper;
+	
+	private CustomViewPager mViewPager;
+	private CustomPagerAdapter mPagerAdapter;
+	
+	private int mCurrentDisplayedViewIndex = 0;
 	
 	private GestureDetector mGestureDetector;
 	
@@ -196,7 +187,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	//this.setTheme(R.style.Dark);
         super.onCreate(savedInstanceState);              
 
         INSTANCE = this;
@@ -227,7 +217,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         
         buildComponents();                
         
-        mViewFlipper.removeAllViews();   
+        //mViewFlipper.removeAllViews();   
         
         updateSwitchTabsMethod();
         updateBookmarksDatabaseSource();
@@ -237,7 +227,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         Intent i = getIntent();
         if (i.getData() != null) {
         	// App first launch from another app.
-        	addTab(false);
+        	addFirstTab(false);
         	navigateToUrl(i.getDataString());
         } else {
         	// Normal start.
@@ -256,7 +246,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         		startActivity(changelogIntent);
         	}
         	
-        	addTab(true);
+        	addFirstTab(true);
         }
         
         initializeWebIconDatabase();
@@ -392,7 +382,37 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		});
     	mBubbleLeftView.setVisibility(View.GONE);
     	
-    	mViewFlipper = (ViewFlipper) findViewById(R.id.ViewFlipper);
+    	//mViewFlipper = (ViewFlipper) findViewById(R.id.ViewFlipper);
+    	mViewPager = (CustomViewPager) findViewById(R.id.ViewPager);
+    	mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
+			
+			@Override
+			public void onPageSelected(int arg0) {				
+				//Log.d("onPageSelected", Integer.toString(arg0));
+				CustomWebView oldWebView = mPagerAdapter.getWebViewAtIndex(mCurrentDisplayedViewIndex);				
+				mCurrentDisplayedViewIndex = arg0;				
+				mCurrentWebView = mPagerAdapter.getWebViewAtIndex(mCurrentDisplayedViewIndex);
+				
+				oldWebView.doOnPause();
+				mCurrentWebView.doOnResume();
+						
+				startToolbarsHideRunnable();		
+				
+				showToastOnTabSwitch();
+				
+				updatePreviousNextTabViewsVisibility();
+				updateUI();
+			}
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) { }
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) { }
+		});
+    	
+    	mPagerAdapter = new CustomPagerAdapter(this, mViewPager);
+    	mViewPager.setAdapter(mPagerAdapter);
     	
     	mTopBar = (LinearLayout) findViewById(R.id.BarLayout);    	
     	mTopBar.setOnClickListener(new OnClickListener() {			
@@ -551,7 +571,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		mNewTabButton = (ImageButton) findViewById(R.id.NewTabBtn);
 		mNewTabButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-            	addTab(true);
+            	addTab(true, mCurrentDisplayedViewIndex + 1);
             }          
         });
 		
@@ -654,9 +674,16 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     	} else {
     		mSwitchTabsMethod = SwitchTabsMethod.BUTTONS;
     	}
+    	
+    	if ((mSwitchTabsMethod == SwitchTabsMethod.FLING) ||
+    			(mSwitchTabsMethod == SwitchTabsMethod.BOTH)) {
+    		mViewPager.setFlingAllowed(true);
+    	} else {
+    		mViewPager.setFlingAllowed(false);
+    	}
     }
     
-    private void updateBookmarksDatabaseSource() {
+    private void updateBookmarksDatabaseSource() { 
     	String source = PreferenceManager.getDefaultSharedPreferences(this).getString(Constants.PREFERENCE_BOOKMARKS_DATABASE, "STOCK");
     	
     	if (source.equals("STOCK")) {
@@ -664,232 +691,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     	} else if (source.equals("INTERNAL")) {
     		BookmarksProviderWrapper.setBookmarksSource(BookmarksSource.INTERNAL);
     	}
-    }
-    
-    /**
-     * Initialize a newly created WebView.
-     */
-    private void initializeCurrentWebView() {
-    	
-    	mCurrentWebView.setWebViewClient(new CustomWebViewClient(this));
-    	mCurrentWebView.setOnTouchListener(this);
-    	
-    	mCurrentWebView.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-
-			@Override
-			public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-				HitTestResult result = ((WebView) v).getHitTestResult();
-				
-				int resultType = result.getType();
-				if ((resultType == HitTestResult.ANCHOR_TYPE) ||
-						(resultType == HitTestResult.IMAGE_ANCHOR_TYPE) ||
-						(resultType == HitTestResult.SRC_ANCHOR_TYPE) ||
-						(resultType == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)) {
-					
-					Intent i = new Intent();
-					i.putExtra(Constants.EXTRA_ID_URL, result.getExtra());
-					
-					MenuItem item = menu.add(0, CONTEXT_MENU_OPEN, 0, R.string.Main_MenuOpen);
-					item.setIntent(i);
-	
-					item = menu.add(0, CONTEXT_MENU_OPEN_IN_NEW_TAB, 0, R.string.Main_MenuOpenNewTab);					
-					item.setIntent(i);
-					
-					item = menu.add(0, CONTEXT_MENU_COPY, 0, R.string.Main_MenuCopyLinkUrl);					
-					item.setIntent(i);
-					
-					item = menu.add(0, CONTEXT_MENU_DOWNLOAD, 0, R.string.Main_MenuDownload);					
-					item.setIntent(i);
-					
-					item = menu.add(0, CONTEXT_MENU_SHARE, 0, R.string.Main_MenuShareLinkUrl);					
-					item.setIntent(i);
-				
-					menu.setHeaderTitle(result.getExtra());					
-				} else if (resultType == HitTestResult.IMAGE_TYPE) {
-					Intent i = new Intent();
-					i.putExtra(Constants.EXTRA_ID_URL, result.getExtra());
-					
-					MenuItem item = menu.add(0, CONTEXT_MENU_OPEN, 0, R.string.Main_MenuViewImage);					
-					item.setIntent(i);
-					
-					item = menu.add(0, CONTEXT_MENU_COPY, 0, R.string.Main_MenuCopyImageUrl);					
-					item.setIntent(i);
-					
-					item = menu.add(0, CONTEXT_MENU_DOWNLOAD, 0, R.string.Main_MenuDownloadImage);					
-					item.setIntent(i);	
-					
-					item = menu.add(0, CONTEXT_MENU_SHARE, 0, R.string.Main_MenuShareImageUrl);					
-					item.setIntent(i);
-					
-					menu.setHeaderTitle(result.getExtra());
-					
-				} else if (resultType == HitTestResult.EMAIL_TYPE) {
-					
-					Intent sendMail = new Intent(Intent.ACTION_VIEW, Uri.parse(WebView.SCHEME_MAILTO + result.getExtra()));
-					
-					MenuItem item = menu.add(0, CONTEXT_MENU_SEND_MAIL, 0, R.string.Main_MenuSendEmail);					
-					item.setIntent(sendMail);										
-					
-					Intent i = new Intent();
-					i.putExtra(Constants.EXTRA_ID_URL, result.getExtra());
-					
-					item = menu.add(0, CONTEXT_MENU_COPY, 0, R.string.Main_MenuCopyEmailUrl);					
-					item.setIntent(i);		
-					
-					item = menu.add(0, CONTEXT_MENU_SHARE, 0, R.string.Main_MenuShareEmailUrl);					
-					item.setIntent(i);
-					
-					menu.setHeaderTitle(result.getExtra());
-				}
-			}
-    		
-    	});  	
-		
-    	mCurrentWebView.setDownloadListener(new DownloadListener() {
-
-			@Override
-			public void onDownloadStart(String url, String userAgent,
-					String contentDisposition, String mimetype,
-					long contentLength) {
-				doDownloadStart(url, userAgent, contentDisposition, mimetype, contentLength);
-			}
-    		
-    	});
-    	
-		final Activity activity = this;
-		mCurrentWebView.setWebChromeClient(new WebChromeClient() {
-			
-			@SuppressWarnings("unused")
-			// This is an undocumented method, it _is_ used, whatever Eclipse may think :)
-			// Used to show a file chooser dialog.
-			public void openFileChooser(ValueCallback<Uri> uploadMsg) {
-				mUploadMessage = uploadMsg;
-				Intent i = new Intent(Intent.ACTION_GET_CONTENT);
-				i.addCategory(Intent.CATEGORY_OPENABLE);
-				i.setType("*/*");
-				MainActivity.this.startActivityForResult(
-						Intent.createChooser(i, MainActivity.this.getString(R.string.Main_FileChooserPrompt)),
-						OPEN_FILE_CHOOSER_ACTIVITY);
-			}
-			
-			@Override
-			public void onProgressChanged(WebView view, int newProgress) {
-				((CustomWebView) view).setProgress(newProgress);				
-				mProgressBar.setProgress(mCurrentWebView.getProgress());
-			}
-						
-			@Override
-			public void onReceivedIcon(WebView view, Bitmap icon) {
-				new Thread(new FaviconUpdaterRunnable(MainActivity.this, view.getUrl(), view.getOriginalUrl(), icon)).start();
-				updateFavIcon();
-				
-				super.onReceivedIcon(view, icon);
-			}
-
-			@Override
-			public boolean onCreateWindow(WebView view, final boolean dialog, final boolean userGesture, final Message resultMsg) {
-				
-				WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
-				
-				addTab(false, mViewFlipper.getDisplayedChild());
-				
-				transport.setWebView(mCurrentWebView);
-				resultMsg.sendToTarget();
-				
-				return false;
-			}
-			
-			@Override
-			public void onReceivedTitle(WebView view, String title) {
-				setTitle(String.format(getResources().getString(R.string.ApplicationNameUrl), title)); 
-				
-				startHistoryUpdaterRunnable(title, mCurrentWebView.getUrl(), mCurrentWebView.getOriginalUrl());
-				
-				super.onReceivedTitle(view, title);
-			}
-
-			@Override
-			public boolean onJsAlert(WebView view, String url, String message, final JsResult result) {
-				new AlertDialog.Builder(activity)
-				.setTitle(R.string.Commons_JavaScriptDialog)
-				.setMessage(message)
-				.setPositiveButton(android.R.string.ok,
-						new AlertDialog.OnClickListener()
-				{
-					public void onClick(DialogInterface dialog, int which) {
-						result.confirm();
-					}
-				})
-				.setCancelable(false)
-				.create()
-				.show();
-
-				return true;
-			}
-
-			@Override
-			public boolean onJsConfirm(WebView view, String url, String message, final JsResult result) {
-				new AlertDialog.Builder(MainActivity.this)
-				.setTitle(R.string.Commons_JavaScriptDialog)
-				.setMessage(message)
-				.setPositiveButton(android.R.string.ok, 
-						new DialogInterface.OnClickListener() 
-				{
-					public void onClick(DialogInterface dialog, int which) {
-						result.confirm();
-					}
-				})
-				.setNegativeButton(android.R.string.cancel, 
-						new DialogInterface.OnClickListener() 
-				{
-					public void onClick(DialogInterface dialog, int which) {
-						result.cancel();
-					}
-				})
-				.create()
-				.show();
-
-				return true;
-			}
-
-			@Override
-			public boolean onJsPrompt(WebView view, String url, String message, String defaultValue, final JsPromptResult result) {
-				
-				final LayoutInflater factory = LayoutInflater.from(MainActivity.this);
-                final View v = factory.inflate(R.layout.javascript_prompt_dialog, null);
-                ((TextView) v.findViewById(R.id.JavaScriptPromptMessage)).setText(message);
-                ((EditText) v.findViewById(R.id.JavaScriptPromptInput)).setText(defaultValue);
-
-                new AlertDialog.Builder(MainActivity.this)
-                    .setTitle(R.string.Commons_JavaScriptDialog)
-                    .setView(v)
-                    .setPositiveButton(android.R.string.ok,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    String value = ((EditText) v.findViewById(R.id.JavaScriptPromptInput)).getText()
-                                            .toString();
-                                    result.confirm(value);
-                                }
-                            })
-                    .setNegativeButton(android.R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                    result.cancel();
-                                }
-                            })
-                    .setOnCancelListener(
-                            new DialogInterface.OnCancelListener() {
-                                public void onCancel(DialogInterface dialog) {
-                                    result.cancel();
-                                }
-                            })
-                    .show();
-                
-                return true;
-
-			}		
-			
-		});
     }
     
     /**
@@ -912,7 +713,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
      * @param mimetype The mime type.
      * @param contentLength The content length.
      */
-    private void doDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+    public void doDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
     	    
         if (ApplicationUtils.checkCardState(this, true)) {
         	DownloadItem item = new DownloadItem(this, url);
@@ -921,6 +722,28 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
         	Toast.makeText(this, getString(R.string.Main_DownloadStartedMsg), Toast.LENGTH_SHORT).show();
         }
+    }
+    
+    public CustomWebView addTab() {
+    	addTab(false, mCurrentDisplayedViewIndex + 1);
+    	return mCurrentWebView;
+    }
+    
+    private void addFirstTab(boolean navigateToHome) {
+    	int newIndex = mPagerAdapter.addPage(-1);
+    	mViewPager.setCurrentItem(newIndex);
+    	
+    	mCurrentDisplayedViewIndex = newIndex;
+    	mCurrentWebView = mPagerAdapter.getWebViewAtIndex(mCurrentDisplayedViewIndex);
+    	
+    	updateUI();
+    	updatePreviousNextTabViewsVisibility();
+    	
+    	mUrlEditText.clearFocus();
+    	
+    	if (navigateToHome) {
+    		navigateToHome();
+    	}
     }
     
     /**
@@ -941,22 +764,11 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     		closeFindDialog();
     	}
     	
-    	RelativeLayout view = (RelativeLayout) mInflater.inflate(R.layout.webview, mViewFlipper, false);
+    	int newIndex = mPagerAdapter.addPage(parentIndex);
+    	mViewPager.setCurrentItem(newIndex);
     	
-    	mCurrentWebView = (CustomWebView) view.findViewById(R.id.webview);
-    	
-    	initializeCurrentWebView();    			
-		
-    	synchronized (mViewFlipper) {
-    		if (parentIndex != -1) {
-    			mWebViews.add(parentIndex + 1, mCurrentWebView);    		
-    			mViewFlipper.addView(view, parentIndex + 1);
-    		} else {
-    			mWebViews.add(mCurrentWebView);
-    			mViewFlipper.addView(view);
-    		}
-    		mViewFlipper.setDisplayedChild(mViewFlipper.indexOfChild(view));    		
-    	}
+    	mCurrentDisplayedViewIndex = newIndex;
+    	mCurrentWebView = mPagerAdapter.getWebViewAtIndex(mCurrentDisplayedViewIndex);
     	
     	updateUI();
     	updatePreviousNextTabViewsVisibility();
@@ -977,17 +789,11 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     		closeFindDialog();
     	}
     	
-    	int removeIndex = mViewFlipper.getDisplayedChild();
+    	mPagerAdapter.removePage(mCurrentDisplayedViewIndex);
     	
-    	mCurrentWebView.doOnPause();
-    	
-    	synchronized (mViewFlipper) {
-    		mViewFlipper.removeViewAt(removeIndex);
-    		mViewFlipper.setDisplayedChild(removeIndex - 1);    		
-    		mWebViews.remove(removeIndex);    		
-    	}
-    	
-    	mCurrentWebView = mWebViews.get(mViewFlipper.getDisplayedChild());
+    	// We need to do this when the removed tab is the first one. In this case, the page selected event is not triggered,
+    	// because we are still on the first tab...
+    	mCurrentWebView = mPagerAdapter.getWebViewAtIndex(mCurrentDisplayedViewIndex);
     	
     	updateUI();
     	updatePreviousNextTabViewsVisibility();
@@ -1054,8 +860,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
     private void setToolbarsVisibility(boolean visible) {
     	    	
     	boolean switchTabByButtons = isSwitchTabsByButtonsEnabled();
-    	boolean showPreviousTabView = mViewFlipper.getDisplayedChild() > 0;
-		boolean showNextTabView = mViewFlipper.getDisplayedChild() < mViewFlipper.getChildCount() - 1;
+    	boolean showPreviousTabView = mCurrentDisplayedViewIndex > 0;
+		boolean showNextTabView = mCurrentDisplayedViewIndex < mPagerAdapter.getCount() - 1;
     	
     	if (visible) {
     		
@@ -1231,18 +1037,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		}
 		mHideToolbarsRunnable = null;
 	}
-    
-    /**
-     * Start a runnable to update history.
-     * @param title The page title.
-     * @param url The page url.
-     */
-    private void startHistoryUpdaterRunnable(String title, String url, String originalUrl) {
-    	if ((url != null) &&
-    			(url.length() > 0)) {
-    		new Thread(new HistoryUpdater(this, title, url, originalUrl)).start();
-    	}
-    }
     
     /**
      * Navigate to the given url.
@@ -1458,13 +1252,19 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	/**
 	 * Update the fav icon display.
 	 */
-	private void updateFavIcon() {
+	public void updateFavIcon() {
 		BitmapDrawable favicon = getNormalizedFavicon();
 		
 		if (mCurrentWebView.getFavicon() != null) {
 			mToolsButton.setImageDrawable(favicon);
 		} else {
 			mToolsButton.setImageResource(R.drawable.fav_icn_default_toolbar);
+		}
+	}
+	
+	public void setLoadProgress(CustomWebView webView, int progress) {
+		if (webView == mCurrentWebView) {
+			mProgressBar.setProgress(progress);
 		}
 	}
 	
@@ -1479,7 +1279,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		mPreviousButton.setEnabled(mCurrentWebView.canGoBack());
 		mNextButton.setEnabled(mCurrentWebView.canGoForward());
 		
-		mRemoveTabButton.setEnabled(mViewFlipper.getChildCount() > 1);
+		mRemoveTabButton.setEnabled(mPagerAdapter.getCount() > 1);
 		
 		mProgressBar.setProgress(mCurrentWebView.getProgress());
 		
@@ -1488,10 +1288,6 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		updateTitle();
 		
 		updateFavIcon();
-	}
-	
-	private boolean isSwitchTabsByFlingEnabled() {
-		return (mSwitchTabsMethod == SwitchTabsMethod.FLING) || (mSwitchTabsMethod == SwitchTabsMethod.BOTH);
 	}
 	
 	private boolean isSwitchTabsByButtonsEnabled() {
@@ -1602,7 +1398,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
         		Bundle b = intent.getExtras();
         		if (b != null) {
         			if (b.getBoolean(Constants.EXTRA_ID_NEW_TAB)) {
-        				addTab(false);
+        				addTab(false, mCurrentDisplayedViewIndex + 1);
         			}
         			navigateToUrl(b.getString(Constants.EXTRA_ID_URL));
         		}
@@ -1637,9 +1433,9 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		if (Controller.getInstance().getPreferences().getBoolean(Constants.PREFERENCES_SHOW_TOAST_ON_TAB_SWITCH, true)) {
 			String text;
 			if (mCurrentWebView.getTitle() != null) {
-				text = String.format(getString(R.string.Main_ToastTabSwitchFullMessage), mViewFlipper.getDisplayedChild() + 1, mCurrentWebView.getTitle());
+				text = String.format(getString(R.string.Main_ToastTabSwitchFullMessage), mCurrentDisplayedViewIndex + 1, mCurrentWebView.getTitle());
 			} else {
-				text = String.format(getString(R.string.Main_ToastTabSwitchMessage), mViewFlipper.getDisplayedChild() + 1);
+				text = String.format(getString(R.string.Main_ToastTabSwitchMessage), mCurrentDisplayedViewIndex + 1);
 			}
 			Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
 		}		
@@ -1648,13 +1444,13 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	private void updatePreviousNextTabViewsVisibility() {
     	if ((mUrlBarVisible) &&
     			(isSwitchTabsByButtonsEnabled())) {
-    		if (mViewFlipper.getDisplayedChild() > 0) {
+    		if (mCurrentDisplayedViewIndex > 0) {
     			mPreviousTabView.setVisibility(View.VISIBLE);
     		} else {
     			mPreviousTabView.setVisibility(View.GONE);
     		}
 
-    		if (mViewFlipper.getDisplayedChild() < mViewFlipper.getChildCount() - 1) {
+    		if (mCurrentDisplayedViewIndex < mPagerAdapter.getCount() - 1) {
     			mNextTabView.setVisibility(View.VISIBLE);
     		} else {
     			mNextTabView.setVisibility(View.GONE);
@@ -1669,33 +1465,8 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	 * Show the previous tab, if any.
 	 */
 	private void showPreviousTab(boolean resetToolbarsRunnable) {
-		
-		if (mViewFlipper.getChildCount() > 1) {
-			
-			if (mFindDialogVisible) {
-				closeFindDialog();
-			}
-			
-			mCurrentWebView.doOnPause();
-			
-			mViewFlipper.setInAnimation(AnimationManager.getInstance().getInFromLeftAnimation());
-			mViewFlipper.setOutAnimation(AnimationManager.getInstance().getOutToRightAnimation());
-
-			mViewFlipper.showPrevious();
-
-			mCurrentWebView = mWebViews.get(mViewFlipper.getDisplayedChild());
-
-			mCurrentWebView.doOnResume();
-			
-			if (resetToolbarsRunnable) {
-				startToolbarsHideRunnable();
-			}
-			
-			showToastOnTabSwitch();
-			
-			updatePreviousNextTabViewsVisibility();
-
-			updateUI();
+		if (mPagerAdapter.getCount() > 1) {			
+			mViewPager.setCurrentItem(mCurrentDisplayedViewIndex - 1);
 		}
 	}
 	
@@ -1703,33 +1474,9 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 	 * Show the next tab, if any.
 	 */
 	private void showNextTab(boolean resetToolbarsRunnable) {
-		
-		if (mViewFlipper.getChildCount() > 1) {
-			
-			if (mFindDialogVisible) {
-				closeFindDialog();
-			}
-			
-			mCurrentWebView.doOnPause();
-			
-			mViewFlipper.setInAnimation(AnimationManager.getInstance().getInFromRightAnimation());
-			mViewFlipper.setOutAnimation(AnimationManager.getInstance().getOutToLeftAnimation());
-
-			mViewFlipper.showNext();
-
-			mCurrentWebView = mWebViews.get(mViewFlipper.getDisplayedChild());
-
-			mCurrentWebView.doOnResume();
-			
-			if (resetToolbarsRunnable) {
-				startToolbarsHideRunnable();
-			}
-			
-			showToastOnTabSwitch();
-			
-			updatePreviousNextTabViewsVisibility();
-
-			updateUI();
+		if ((mPagerAdapter.getCount() > 1) &&
+				(mCurrentDisplayedViewIndex < mPagerAdapter.getCount() - 1)) {
+			mViewPager.setCurrentItem(mCurrentDisplayedViewIndex + 1);
 		}
 	}
 	
@@ -1847,7 +1594,7 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 
 			case CONTEXT_MENU_OPEN_IN_NEW_TAB:
 				if (b != null) {
-					addTab(false, mViewFlipper.getDisplayedChild());
+					addTab(false, mCurrentDisplayedViewIndex + 1);
 					navigateToUrl(b.getString(Constants.EXTRA_ID_URL));
 				}			
 				return true;
@@ -1888,6 +1635,14 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 		}			
 	}
 	
+	public int getCurrentDisplayedViewIndex() {
+		return mCurrentDisplayedViewIndex;
+	}
+	
+	public void setUploadMessage(ValueCallback<Uri> uploadMessage) {
+		mUploadMessage = uploadMessage;
+	}
+	
 	/**
 	 * Gesture listener implementation.
 	 */
@@ -1899,27 +1654,27 @@ public class MainActivity extends Activity implements IToolbarsContainer, OnTouc
 			return super.onDoubleTap(e);
 		}
 
-		@Override
-		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,	float velocityY) {
-			if (isSwitchTabsByFlingEnabled()) {
-				if (e2.getEventTime() - e1.getEventTime() <= FLIP_TIME_THRESHOLD) {
-					if (e2.getX() > (e1.getX() + FLIP_PIXEL_THRESHOLD)) {						
-
-						showPreviousTab(false);
-						return false;
-					}
-
-					// going forwards: pushing stuff to the left
-					if (e2.getX() < (e1.getX() - FLIP_PIXEL_THRESHOLD)) {					
-
-						showNextTab(false);
-						return false;
-					}
-				}
-			}
-			
-			return super.onFling(e1, e2, velocityX, velocityY);
-		}
+//		@Override
+//		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,	float velocityY) {
+//			if (isSwitchTabsByFlingEnabled()) {
+//				if (e2.getEventTime() - e1.getEventTime() <= FLIP_TIME_THRESHOLD) {
+//					if (e2.getX() > (e1.getX() + FLIP_PIXEL_THRESHOLD)) {						
+//
+//						showPreviousTab(false);
+//						return false;
+//					}
+//
+//					// going forwards: pushing stuff to the left
+//					if (e2.getX() < (e1.getX() - FLIP_PIXEL_THRESHOLD)) {					
+//
+//						showNextTab(false);
+//						return false;
+//					}
+//				}
+//			}
+//			
+//			return super.onFling(e1, e2, velocityX, velocityY);
+//		}
 		
 	}
 	

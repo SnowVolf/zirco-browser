@@ -408,7 +408,7 @@
     
     <!-- 0.4.0 -->
     <string name="PreferencesActivity.WeavePreferenceTitle">Firefox bookmarks synchronization</string>
-    <string name="PreferencesActivity.WeavePreferenceSummary">Manage the settings of the bookmarks synchronization with Firefox Sync.</string>
+    <string name="PreferencesActivity.WeavePreferenceSummary">Manage the settings of the bookmarks synchronization with Firefox.</string>
     <string name="PreferencesActivity.UseWeavePreferenceTitle">Use Firefox Sync</string>
     <string name="PreferencesActivity.UseWeavePreferenceSummary">If checked, you can retrieve your bookmarks from Firefox Sync.</string>
     <string name="PreferencesActivity.WeaveServerPreferenceTitle">Server</string>
@@ -460,6 +460,7 @@
     
     <string name="Commons.OperationCanBeLongMessage">This operation can take some times. Do you wish to proceed?</string>
     
+    <string name="PreferencesActivity.ToolsCategoryTitle">Tools</string>
     <string name="PreferencesActivity.ToolsHistoryBookmarksPreferenceTitle">Manage bookmarks and history</string>
     <string name="PreferencesActivity.ToolsHistoryBookmarksPreferenceSummary">Import, export, clear history and bookmarks.</string>
     <string name="PreferencesActivity.ExportHistoryBookmarksPreferenceTitle">Export bookmarks and history</string>
@@ -481,37 +482,5 @@
     <string name="Commons.ImportHistoryBookmarksSource">Choose the import source</string>
     
     <string name="Commons.ClearingBookmarks">正在清空书签中...</string>
-    
-    <string name="DownloadListActivity.RemoveCompletedDownloads">Remove completed downloads</string>
-    
-    <string name="QuickAction.Find">Find on page</string>
-    <string name="SearchDialog.Hint">Find on page</string>
-    
-    <!-- 0.4.2 -->
-    <string name="PreferencesActivity.AdvancedCategoryTitle">Advanced</string>
-    
-    <string name="PreferencesActivity.BookmarksDatabaseTitle">Bookmarks storage</string>
-    <string name="PreferencesActivity.BookmarksDatabaseSummary">Choose the bookmarks storage mode.</string>
-    
-    <string name="PreferencesActivity.BookmarksDatabaseStock">Android</string>
-    <string name="PreferencesActivity.BookmarksDatabaseInternal">Internal</string>
-        
-    <string-array name="BookmarksDatabaseEntries">
-		<item>@string/PreferencesActivity.BookmarksDatabaseStock</item>
-		<item>@string/PreferencesActivity.BookmarksDatabaseInternal</item>
-	</string-array>
-    <string-array name="BookmarksDatabaseValues">
-		<item>STOCK</item>
-		<item>INTERNAL</item>
-	</string-array>
-	
-    <string name="HistoryListActivity.BookmarkAdded">Added to bookmarks.</string>
-    <string name="HistoryListActivity.BookmarkRemoved">Removed from bookmarks.</string>
-    
-    <string name="HttpAuthenticationDialog.DialogTitle">Sign in to %1$s - %2$s</string>
-    <string name="HttpAuthenticationDialog.UserName">Name</string>
-    <string name="HttpAuthenticationDialog.Password">Password</string>
-    
-    <string name="Commons.Proceed">Proceed</string>
 	
 </resources>

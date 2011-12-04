@@ -21,9 +21,14 @@
 
 	<RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
 
+		<!--  
 		<ViewFlipper android:id="@+id/ViewFlipper"
 			android:layout_width="fill_parent" android:layout_height="fill_parent">
 		</ViewFlipper>
+		-->
+		<org.zirco.ui.components.CustomViewPager android:id="@+id/ViewPager"
+			android:layout_width="fill_parent" android:layout_height="fill_parent">
+		</org.zirco.ui.components.CustomViewPager>
 
 		<LinearLayout android:id="@+id/BarLayout"
 			android:layout_toRightOf="@+id/GoBtn" android:layout_width="fill_parent"
@@ -69,47 +74,11 @@
 			</LinearLayout>											
 			
 		</LinearLayout>
-		
-		<LinearLayout android:id="@+id/findControls" android:layout_width="match_parent"
-			android:layout_alignParentTop="true"
-			android:layout_height="wrap_content" android:paddingTop="5dip"
-			android:paddingLeft="4dip" android:paddingRight="4dip"
-			android:paddingBottom="1dip" android:background="@android:drawable/bottom_bar">
-
-			<ImageButton android:src="@drawable/ic_btn_find_prev"
-				android:id="@+id/find_previous" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-
-			<ImageButton android:src="@drawable/ic_btn_find_next"
-				android:id="@+id/find_next" android:layout_width="wrap_content"
-				android:layout_height="wrap_content" />
-
-			<LinearLayout android:layout_height="wrap_content"
-				android:layout_width="0dip" android:layout_weight="1"
-				android:orientation="vertical" android:layout_marginRight="6dip">
-
-					<EditText android:id="@+id/find_value" android:layout_width="match_parent"
-						android:layout_height="wrap_content" android:scrollHorizontally="true"
-						android:singleLine="true" android:ellipsize="end"
-						android:inputType="text" android:hint="@string/SearchDialog.Hint" />
-
-			</LinearLayout>
-
-			<ImageButton android:id="@+id/find_close"
-				android:layout_width="wrap_content" android:layout_height="wrap_content"
-				android:src="@drawable/ic_btn_close_panel" />
-
-		</LinearLayout>
 
 		<ImageView android:layout_height="wrap_content"
 			android:layout_width="wrap_content" android:src="@drawable/bubbleright48"
 			android:layout_alignParentBottom="true"
 			android:layout_alignParentRight="true" android:id="@+id/BubbleRightView"></ImageView>
-			
-		<ImageView android:layout_height="wrap_content"
-			android:layout_width="wrap_content" android:src="@drawable/bubbleleft48"
-			android:layout_alignParentBottom="true"
-			android:layout_alignParentLeft="true" android:id="@+id/BubbleLeftView"></ImageView>
 			
 		<ImageView android:id="@+id/PreviousTabView"
 			android:src="@drawable/previous_tab"
@@ -123,7 +92,7 @@
 
 		<LinearLayout android:id="@+id/BottomBarLayout"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:background="@drawable/tb_background_bottom" android:scaleType="fitXY"
+			android:scaleType="fitXY" android:background="@drawable/tb_background_bottom"
 			android:layout_alignParentBottom="true" android:weightSum="5">
 			
 			<ImageButton android:layout_height="wrap_content"
@@ -157,7 +126,12 @@
 				android:layout_marginLeft="3dip"
 				android:layout_marginRight="3dip"
 				android:src="@drawable/ic_btn_forward" android:layout_weight="1"></ImageButton>
-		</LinearLayout>				
+		</LinearLayout>
+		
+		<ImageView android:layout_height="wrap_content"
+			android:layout_width="wrap_content" android:src="@drawable/bubbleleft48"
+			android:layout_alignParentBottom="true"
+			android:layout_alignParentLeft="true" android:id="@+id/BubbleLeftView"></ImageView>
 
 	</RelativeLayout>
 

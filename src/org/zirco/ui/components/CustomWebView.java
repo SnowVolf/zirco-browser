@@ -48,11 +48,8 @@ public class CustomWebView extends WebView {
 	private String mLoadedUrl;
 	
 	private static boolean mBoMethodsLoaded = false;
-	
 	private static Method mOnPauseMethod = null;
 	private static Method mOnResumeMethod = null;
-	private static Method mSetFindIsUp = null;
-	private static Method mNotifyFindDialogDismissed = null;
 	
 	/**
 	 * Constructor.
@@ -235,11 +232,11 @@ public class CustomWebView extends WebView {
 				mOnPauseMethod.invoke(this);
 				
 			} catch (IllegalArgumentException e) {
-				Log.e("CustomWebView", "doOnPause(): " + e.getMessage());
+				Log.e("ZircoWebView", "doOnPause(): " + e.getMessage());
 			} catch (IllegalAccessException e) {
-				Log.e("CustomWebView", "doOnPause(): " + e.getMessage());
+				Log.e("ZircoWebView", "doOnPause(): " + e.getMessage());
 			} catch (InvocationTargetException e) {
-				Log.e("CustomWebView", "doOnPause(): " + e.getMessage());
+				Log.e("ZircoWebView", "doOnPause(): " + e.getMessage());
 			}
 		}
 	}
@@ -254,43 +251,11 @@ public class CustomWebView extends WebView {
 				mOnResumeMethod.invoke(this);
 				
 			} catch (IllegalArgumentException e) {
-				Log.e("CustomWebView", "doOnResume(): " + e.getMessage());
+				Log.e("ZircoWebView", "doOnResume(): " + e.getMessage());
 			} catch (IllegalAccessException e) {
-				Log.e("CustomWebView", "doOnResume(): " + e.getMessage());
+				Log.e("ZircoWebView", "doOnResume(): " + e.getMessage());
 			} catch (InvocationTargetException e) {
-				Log.e("CustomWebView", "doOnResume(): " + e.getMessage());
-			}
-		}
-	}
-	
-	public void doSetFindIsUp(boolean value) {
-		if (mSetFindIsUp != null) {
-			try {
-				
-				mSetFindIsUp.invoke(this, value);
-				
-			} catch (IllegalArgumentException e) {
-				Log.e("CustomWebView", "doSetFindIsUp(): " + e.getMessage());
-			} catch (IllegalAccessException e) {
-				Log.e("CustomWebView", "doSetFindIsUp(): " + e.getMessage());
-			} catch (InvocationTargetException e) {
-				Log.e("CustomWebView", "doSetFindIsUp(): " + e.getMessage());
-			}
-		}
-	}
-	
-	public void doNotifyFindDialogDismissed() {
-		if (mNotifyFindDialogDismissed != null) {
-			try {
-				
-				mNotifyFindDialogDismissed.invoke(this);
-				
-			} catch (IllegalArgumentException e) {
-				Log.e("CustomWebView", "doNotifyFindDialogDismissed(): " + e.getMessage());
-			} catch (IllegalAccessException e) {
-				Log.e("CustomWebView", "doNotifyFindDialogDismissed(): " + e.getMessage());
-			} catch (InvocationTargetException e) {
-				Log.e("CustomWebView", "doNotifyFindDialogDismissed(): " + e.getMessage());
+				Log.e("ZircoWebView", "doOnResume(): " + e.getMessage());
 			}
 		}
 	}
@@ -306,31 +271,15 @@ public class CustomWebView extends WebView {
 
 				mOnPauseMethod = WebView.class.getMethod("onPause");
 				mOnResumeMethod = WebView.class.getMethod("onResume");
-				
 
 			} catch (SecurityException e) {
-				Log.e("CustomWebView", "loadMethods(): " + e.getMessage());
+				Log.e("ZircoWebView", "loadMethods(): " + e.getMessage());
 				mOnPauseMethod = null;
 				mOnResumeMethod = null;
 			} catch (NoSuchMethodException e) {
-				Log.e("CustomWebView", "loadMethods(): " + e.getMessage());
+				Log.e("ZircoWebView", "loadMethods(): " + e.getMessage());
 				mOnPauseMethod = null;
 				mOnResumeMethod = null;
-			}
-			
-			try {
-				
-				mSetFindIsUp = WebView.class.getMethod("setFindIsUp", Boolean.TYPE);
-				mNotifyFindDialogDismissed = WebView.class.getMethod("notifyFindDialogDismissed");
-				
-			} catch (SecurityException e) {
-				Log.e("CustomWebView", "loadMethods(): " + e.getMessage());
-				mSetFindIsUp = null;
-				mNotifyFindDialogDismissed = null;
-			} catch (NoSuchMethodException e) {
-				Log.e("CustomWebView", "loadMethods(): " + e.getMessage());
-				mSetFindIsUp = null;
-				mNotifyFindDialogDismissed = null;
 			}
 
 			mBoMethodsLoaded = true;

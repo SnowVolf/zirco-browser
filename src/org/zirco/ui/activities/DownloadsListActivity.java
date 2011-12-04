@@ -25,8 +25,6 @@ import org.zirco.model.items.DownloadItem;
 
 import android.app.ListActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -35,15 +33,13 @@ import android.widget.TextView;
  * Download list activity.
  */
 public class DownloadsListActivity extends ListActivity implements IDownloadEventsListener {
-	
-	private static final int MENU_CLEAR_DOWNLOADS = Menu.FIRST;
 
 	private DownloadListAdapter mAdapter;
 	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.downloads_list_activity);
+        setContentView(R.layout.downloadslistactivity);
         
         setTitle(R.string.DownloadListActivity_Title);
         
@@ -52,34 +48,6 @@ public class DownloadsListActivity extends ListActivity implements IDownloadEven
         fillData();
 	}
 	
-	@Override
-	protected void onDestroy() {
-		EventController.getInstance().removeDownloadListener(this);
-		super.onDestroy();
-	}
-	
-	@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-    	
-    	MenuItem item = menu.add(0, MENU_CLEAR_DOWNLOADS, 0, R.string.DownloadListActivity_RemoveCompletedDownloads);
-        item.setIcon(R.drawable.ic_menu_delete);
-        
-        return true;
-	}
-	
-	@Override
-    public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		
-		switch(item.getItemId()) {
-		case MENU_CLEAR_DOWNLOADS:
-			Controller.getInstance().clearCompletedDownloads();
-			fillData();
-			return true;
-		default: return super.onMenuItemSelected(featureId, item);
-		}
-	}
-
 	/**
 	 * Fill the download list.
 	 */

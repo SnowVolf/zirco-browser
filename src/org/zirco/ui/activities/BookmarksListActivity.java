@@ -71,7 +71,7 @@ public class BookmarksListActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.bookmarks_list_activity);
+        setContentView(R.layout.bookmarkslistactivity);
         
         setTitle(R.string.BookmarksListActivity_Title);
         
@@ -128,7 +128,7 @@ public class BookmarksListActivity extends Activity {
     	int[] to = new int[] {R.id.BookmarkRow_Title, R.id.BookmarkRow_Url};
     	
     	mCursorAdapter = new BookmarksCursorAdapter(this,
-    			R.layout.bookmark_row,
+    			R.layout.bookmarkrow,
     			mCursor,
     			from,
     			to,

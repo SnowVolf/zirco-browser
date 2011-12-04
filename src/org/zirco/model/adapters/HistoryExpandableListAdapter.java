@@ -32,9 +32,8 @@ import android.view.ViewGroup;
 import android.webkit.DateSorter;
 import android.widget.AbsListView;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -58,17 +57,14 @@ public class HistoryExpandableListAdapter extends BaseExpandableListAdapter {
 	
 	private int mFaviconSize;
 	
-	private OnCheckedChangeListener mBookmarkStarChangeListener;
-	
 	/**
 	 * Constructor.
 	 * @param context The current context.
 	 * @param cursor The data cursor.
 	 * @param dateIndex The date index ?
 	 */
-	public HistoryExpandableListAdapter(Context context, OnCheckedChangeListener bookmarksChangeListener, Cursor cursor, int dateIndex, int faviconSize) {
+	public HistoryExpandableListAdapter(Context context, Cursor cursor, int dateIndex, int faviconSize) {
 		mContext = context;
-		mBookmarkStarChangeListener = bookmarksChangeListener;
 		mCursor = cursor;
 		mDateIndex = dateIndex;
 		mFaviconSize = faviconSize;
@@ -76,7 +72,7 @@ public class HistoryExpandableListAdapter extends BaseExpandableListAdapter {
 		mDateSorter = new DateSorter(mContext);
 		mIdIndex = cursor.getColumnIndexOrThrow(BaseColumns._ID);
 		
-		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);		
+		mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		
 		buildMap();
 	}
@@ -196,7 +192,7 @@ public class HistoryExpandableListAdapter extends BaseExpandableListAdapter {
 	 * @return The created view.
 	 */
 	private View getCustomChildView() {
-		View view = mInflater.inflate(R.layout.history_row, null, false);
+		LinearLayout view = (LinearLayout) mInflater.inflate(R.layout.history_row, null, false);
 		
 		return view;
 	}
@@ -205,11 +201,10 @@ public class HistoryExpandableListAdapter extends BaseExpandableListAdapter {
 	public Object getChild(int groupPosition, int childPosition) {
 		moveCursorToChildPosition(groupPosition, childPosition);
 
-		return new HistoryItem(mCursor.getLong(mCursor.getColumnIndex(Browser.BookmarkColumns._ID)),
-				mCursor.getString(mCursor.getColumnIndex(Browser.BookmarkColumns.TITLE)),
-				mCursor.getString(mCursor.getColumnIndex(Browser.BookmarkColumns.URL)),
-				mCursor.getInt(mCursor.getColumnIndex(Browser.BookmarkColumns.BOOKMARK)) >= 1 ? true : false,
-				mCursor.getBlob(mCursor.getColumnIndex(Browser.BookmarkColumns.FAVICON)));
+		return new HistoryItem(mCursor.getLong(Browser.HISTORY_PROJECTION_ID_INDEX),
+				mCursor.getString(Browser.HISTORY_PROJECTION_TITLE_INDEX),
+				mCursor.getString(Browser.HISTORY_PROJECTION_URL_INDEX),
+				mCursor.getBlob(Browser.HISTORY_PROJECTION_FAVICON_INDEX));
 	}
 
 	@Override
@@ -232,14 +227,6 @@ public class HistoryExpandableListAdapter extends BaseExpandableListAdapter {
 		TextView urlView = (TextView) view.findViewById(R.id.HistoryRow_Url);		 					
 		urlView.setText(item.getUrl());
 		
-		CheckBox bookmarkStar = (CheckBox) view.findViewById(R.id.HistoryRow_BookmarkStar);
-		
-		bookmarkStar.setTag(item.getId());
-		
-		bookmarkStar.setOnCheckedChangeListener(null);
-		bookmarkStar.setChecked(item.isBookmark());
-		bookmarkStar.setOnCheckedChangeListener(mBookmarkStarChangeListener);
-		
 		ImageView faviconView = (ImageView) view.findViewById(R.id.HistoryRow_Thumbnail);
 		Bitmap favicon = item.getFavicon();
 		if (favicon != null) {
@@ -252,6 +239,7 @@ public class HistoryExpandableListAdapter extends BaseExpandableListAdapter {
 			icon.draw(canvas);
 			
 			faviconView.setImageBitmap(bm);
+			//faviconView.setImageBitmap(item.getFavicon());
 		} else {
 			faviconView.setImageResource(R.drawable.fav_icn_unknown);
 		}

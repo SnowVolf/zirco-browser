@@ -484,7 +484,7 @@ public class ApplicationUtils {
 		String historyHtml = getHistoryHtml(context);
 		
 		String searchHtml = "";
-		if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.PREFERENCES_START_PAGE_SHOW_SEARCH, false)) {
+		if (PreferenceManager.getDefaultSharedPreferences(context).getBoolean(Constants.PREFERENCES_START_PAGE_SHOW_SEARCH, true)) {
 			searchHtml = String.format(mRawStartPageSearch, context.getResources().getString(R.string.StartPage_Search), context.getResources().getString(R.string.StartPage_SearchButton));
 		}
 		

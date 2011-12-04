@@ -118,6 +118,7 @@ public class DownloadRunnable implements Runnable {
 				byte[] buffer = new byte[BUFFER_SIZE];
 				int downloaded = 0;
 				int read;
+				int stepRead = 0;
 				
 				while ((downLoading) &&
 						(!mAborted)) {
@@ -135,6 +136,7 @@ public class DownloadRunnable implements Runnable {
 						
 						completed = ((downloaded * 100f) / size);
 						
+						stepRead++;
 					} else {
 						downLoading = false;
 					}

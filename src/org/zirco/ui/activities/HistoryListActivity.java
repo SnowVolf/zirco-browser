@@ -16,11 +16,9 @@
 package org.zirco.ui.activities;
 
 import org.zirco.R;
-import org.zirco.controllers.Controller;
 import org.zirco.model.adapters.HistoryExpandableListAdapter;
 import org.zirco.model.items.HistoryItem;
 import org.zirco.providers.BookmarksProviderWrapper;
-import org.zirco.ui.components.CustomWebView;
 import org.zirco.utils.ApplicationUtils;
 import org.zirco.utils.Constants;
 
@@ -38,11 +36,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.CompoundButton;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.Toast;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ExpandableListView.ExpandableListContextMenuInfo;
 
 /**
@@ -61,8 +56,6 @@ public class HistoryListActivity extends ExpandableListActivity {
 	
 	private ProgressDialog mProgressDialog;
 	
-	private OnCheckedChangeListener mBookmarkStarChangeListener;
-	
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,20 +63,6 @@ public class HistoryListActivity extends ExpandableListActivity {
         setTitle(R.string.HistoryListActivity_Title);
         
         registerForContextMenu(getExpandableListView());
-        
-        mBookmarkStarChangeListener = new OnCheckedChangeListener() {			
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {								
-				long id = (Long) buttonView.getTag();
-				BookmarksProviderWrapper.toggleBookmark(getContentResolver(), id, isChecked);
-				
-				if (isChecked) {
-					Toast.makeText(HistoryListActivity.this, R.string.HistoryListActivity_BookmarkAdded, Toast.LENGTH_SHORT).show();
-				} else {
-					Toast.makeText(HistoryListActivity.this, R.string.HistoryListActivity_BookmarkRemoved, Toast.LENGTH_SHORT).show();
-				}
-			}
-		};
         
         fillData();
 	}
@@ -93,12 +72,10 @@ public class HistoryListActivity extends ExpandableListActivity {
 	 */
 	private void fillData() {
 		Cursor c = BookmarksProviderWrapper.getStockHistory(getContentResolver());
-		
-		mAdapter = new HistoryExpandableListAdapter(
-				this,
-				mBookmarkStarChangeListener,
+
+		mAdapter = new HistoryExpandableListAdapter(this,
 				c,
-				c.getColumnIndex(Browser.BookmarkColumns.DATE),
+				Browser.HISTORY_PROJECTION_DATE_INDEX,
 				ApplicationUtils.getFaviconSizeForBookmarks(this));
 		
         setListAdapter(mAdapter);
@@ -256,11 +233,6 @@ public class HistoryListActivity extends ExpandableListActivity {
 		@Override
 		public void run() {
 			BookmarksProviderWrapper.clearHistoryAndOrBookmarks(getContentResolver(), true, false);
-			
-			for (CustomWebView webView : Controller.getInstance().getWebViewList()) {
-				webView.clearHistory();
-			}
-			
 			handler.sendEmptyMessage(0);
 		}
 

@@ -18,11 +18,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="org.zirco"
       android:installLocation="auto"
-      android:versionName="0.4.2" android:versionCode="16">
+      android:versionName="0.4.0" android:versionCode="14">
     <application
     	android:icon="@drawable/icon"
-    	android:label="@string/ApplicationName"    	
-    	android:debuggable="true">
+    	android:label="@string/ApplicationName" android:debuggable="true">
     
         <activity android:name=".ui.activities.MainActivity"
                   android:label="@string/ApplicationName"
@@ -58,7 +57,6 @@
 		<activity android:name=".ui.activities.preferences.WeavePreferencesActivity"></activity>
 		<activity android:name=".ui.activities.preferences.WeaveServerPreferenceActivity" android:theme="@android:style/Theme.Dialog" android:label="@string/WeaveServerPreferenceActivity.Title"></activity>
 		
-		<provider android:name=".providers.ZircoBookmarksContentProvider" android:authorities="org.zirco.providers.zircobookmarkscontentprovider"></provider>
 		<provider android:name=".providers.WeaveContentProvider" android:authorities="org.zirco.providers.weavecontentprovider"></provider>
 	</application>
 
